@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Élégante</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+ 
+</head>
+<body>
+    <!-- Sidebar Élégante -->
+    <aside class="elegant-sidebar">
+        <!-- Header -->
+        <div class="sidebar-header">
+            <div class="logo-container">
+              
+                <div class="logo-text"><img src="https://anapco.co.uk/wp-content/uploads/2024/02/logooooomdpi.png" style=" width: 150px;"><img>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Utilisateur -->
+        <div class="user-section" *ngIf="userName">
+            <div class="user-avatar">
+              {{ initials }}
+            </div>
+          
+            <div class="user-info">
+              <div class="user-name">{{ userName }}</div>
+              <div class="user-role">{{ userRole }}</div>
+            </div>
+          </div>
+          
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <!-- Section Principale -->
+            <div class="nav-section">
+                <div class="section-title">Navigation Principale</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-tachometer-alt nav-icon"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-laptop-code nav-icon"></i>
+                            <span class="nav-text">Équipements</span>
+                            <span class="badge">12</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-layer-group nav-icon"></i>
+                            <span class="nav-text">Catégories</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Section Gestion -->
+            <div class="nav-section">
+                <div class="section-title">Gestion</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-chart-line nav-icon"></i>
+                            <span class="nav-text">Finance</span>
+                            <span class="badge">3</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="users" class="nav-link">
+                            <i class="fas fa-users nav-icon"></i>
+                            <span class="nav-text">Utilisateurs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-calendar-alt nav-icon"></i>
+                            <span class="nav-text">Planning</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-file-contract nav-icon"></i>
+                            <span class="nav-text">Rapports</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Section Système -->
+            <div class="nav-section">
+                <div class="section-title">Système</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-cog nav-icon"></i>
+                            <span class="nav-text">Paramètres</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-question-circle nav-icon"></i>
+                            <span class="nav-text">Support</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Footer -->
+        <div class="sidebar-footer">
+            <button class="logout-btn" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Déconnexion</span>
+            </button>
+          </div>
+          
+    </aside>
+
+    <!-- Contenu Principal -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1 class="welcome-title">Bonjour, {{ userName }}👋</h1>
+            <p class="welcome-subtitle">Bienvenue sur votre tableau de bord NexusPro. Gérez vos équipements, finances et utilisateurs en toute simplicité.</p>
+        </div>
+
+    </main>
+
+    <script>
+        // Gestion des clics sur les liens de navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Retirer la classe active de tous les liens
+                document.querySelectorAll('.nav-link').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Ajouter la classe active au lien cliqué
+                this.classList.add('active');
+                
+                // Animation de l'icône
+                const icon = this.querySelector('.nav-icon');
+                icon.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    icon.style.transform = 'scale(1.1)';
+                }, 200);
+            });
+        });
+
+       
+        // Animation au survol de l'avatar utilisateur
+        document.querySelector('.user-avatar').addEventListener('mouseenter', function() {
+            this.style.transform = 'rotate(10deg) scale(1.1)';
+        });
+
+        document.querySelector('.user-avatar').addEventListener('mouseleave', function() {
+            this.style.transform = 'rotate(0) scale(1)';
+        });
+
+        // Effet de lumière sur les cartes
+        document.querySelectorAll('.dashboard-card').forEach(card => {
+            card.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                this.style.setProperty('--mouse-x', `${x}px`);
+                this.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    </script>
+</body>
+</html>
