@@ -1,0 +1,47 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-user-shield"></i> Gestion des Rôles</h2>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="addMessage" class="alert alert-info">{{ addMessage }}</div>
+
+  <!-- Add Role Form -->
+  <div class="add-role-section">
+    <div class="add-role-form">
+      <input type="text"
+             [(ngModel)]="newRoleName"
+             placeholder="Role name (e.g. ADMIN)"
+             class="role-input">
+      <button class="btn btn-primary" (click)="addRole()" [disabled]="!newRoleName.trim()">
+        <i class="fas fa-plus"></i> Add Role
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading roles...
+  </div>
+
+  <div *ngIf="!loading && roles.length === 0" class="empty-state">
+    <i class="fas fa-user-shield"></i>
+    <p>No roles found.</p>
+  </div>
+
+  <table *ngIf="!loading && roles.length > 0" class="sites-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let role of roles">
+        <td>{{ role.idRole }}</td>
+        <td><span class="badge badge-role">{{ role.name }}</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,47 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-form-container">
+  <div class="header">
+    <h2>
+      <i class="fas" [ngClass]="isEditMode ? 'fa-edit' : 'fa-plus-circle'"></i>
+      {{ isEditMode ? 'Edit Category' : 'Create Category' }}
+    </h2>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading && isEditMode" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading category data...
+  </div>
+
+  <form *ngIf="!loading || !isEditMode" [formGroup]="categorieForm" (ngSubmit)="onSubmit()" class="form-card">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nomEquiepment">Category Name *</label>
+        <input id="nomEquiepment" formControlName="nomEquiepment" placeholder="e.g. Electrical">
+        <span class="error" *ngIf="categorieForm.get('nomEquiepment')?.touched && categorieForm.get('nomEquiepment')?.invalid">
+          Category name is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <input id="description" formControlName="description" placeholder="e.g. Electrical equipment category">
+        <span class="error" *ngIf="categorieForm.get('description')?.touched && categorieForm.get('description')?.invalid">
+          Description is required
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </button>
+    </div>
+  </form>
+</div>

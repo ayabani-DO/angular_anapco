@@ -3,6 +3,8 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
+declare var google: any;
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -84,12 +86,35 @@ export class LoginComponent {
     });
   }
 
+  loginWithGoogle() {
+    // Google Sign-In: requires Google Identity Services script loaded in index.html
+    // For now, we use a prompt approach. You'll need to add your Google Client ID.
+    if (typeof google !== 'undefined') {
+      google.accounts.id.initialize({
+        client_id: 'YOUR_GOOGLE_CLIENT_ID', // TODO: replace with your actual Google Client ID
+        callback: (response: any) => {
+          this.authService.authenticateWithGoogle(response.credential).subscribe({
+            next: res => {
+              localStorage.setItem('token', res.token);
+              this.authService.saveToken(res.token);
+              this.router.navigate(['/dashboard']);
+            },
+            error: err => {
+              this.errorMessage = err.error?.message || 'Google login failed';
+              this.successMessage = '';
+            }
+          });
+        }
+      });
+      google.accounts.id.prompt();
+    } else {
+      this.errorMessage = 'Google Sign-In is not available. Please add the Google Identity Services script.';
+    }
+  }
+
   showForm(form: 'login' | 'forgot') {
     this.currentForm = form;
     this.errorMessage = '';
     this.successMessage = '';
   }
-
-
-  
 }

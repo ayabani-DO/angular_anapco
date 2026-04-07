@@ -1,0 +1,100 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-heartbeat"></i> Equipment RUL (Remaining Useful Life)</h2>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'site'" (click)="activeTab = 'site'">By Site</button>
+    <button class="tab-btn" [class.active]="activeTab === 'high-risk'" (click)="activeTab = 'high-risk'">High Risk</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <!-- By Site Tab -->
+  <div *ngIf="activeTab === 'site'" class="tab-content">
+    <div class="filter-row">
+      <select [(ngModel)]="selectedSiteId">
+        <option [ngValue]="null">-- Select a site --</option>
+        <option *ngFor="let site of sites" [ngValue]="site.idSite">{{ site.nom }}</option>
+      </select>
+      <button class="btn btn-primary" (click)="loadBySite()" [disabled]="!selectedSiteId">
+        <i class="fas fa-search"></i> Analyze
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && rulData.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>Equipment</th>
+          <th>Ref</th>
+          <th>RUL Score</th>
+          <th>Category</th>
+          <th>Est. Days Left</th>
+          <th>MTBF</th>
+          <th>MTTR</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of rulData">
+          <td>{{ item.equipmentName }}</td>
+          <td>{{ item.equipmentRef }}</td>
+          <td>{{ item.rulScore }}</td>
+          <td><span class="badge" [ngClass]="getRulBadgeClass(item.rulCategory)">{{ item.rulCategory }}</span></td>
+          <td>{{ item.estimatedRemainingDays }}</td>
+          <td>{{ item.mtbf | number:'1.1-1' }}</td>
+          <td>{{ item.mttr | number:'1.1-1' }}</td>
+          <td>{{ item.recommendedAction }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!loading && rulData.length === 0 && selectedSiteId" class="empty-state">
+      <p>No RUL data available for this site.</p>
+    </div>
+  </div>
+
+  <!-- High Risk Tab -->
+  <div *ngIf="activeTab === 'high-risk'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-danger" (click)="loadHighRisk()">
+        <i class="fas fa-exclamation-triangle"></i> Load High-Risk Equipment
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && highRiskData.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>Equipment</th>
+          <th>Ref</th>
+          <th>RUL Score</th>
+          <th>Est. Days Left</th>
+          <th>Recent Incidents</th>
+          <th>Recent Corrective</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of highRiskData">
+          <td>{{ item.equipmentName }}</td>
+          <td>{{ item.equipmentRef }}</td>
+          <td><span class="badge badge-danger">{{ item.rulScore }}</span></td>
+          <td>{{ item.estimatedRemainingDays }}</td>
+          <td>{{ item.recentIncidentCount }}</td>
+          <td>{{ item.recentCorrectiveMaintenanceCount }}</td>
+          <td>{{ item.recommendedAction }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!loading && highRiskData.length === 0" class="empty-state">
+      <p>No high-risk equipment found.</p>
+    </div>
+  </div>
+</div>

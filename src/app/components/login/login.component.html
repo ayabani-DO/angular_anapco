@@ -49,11 +49,18 @@
             <div class="formbg-inner padding-horizontal--48">
               <img src="https://anapco.co.uk/wp-content/uploads/2024/02/logooooomdpi.png" style="margin-left: 100px; width: 150px;"><img>
               <span class="padding-bottom--15"></span>
+
+              <div *ngIf="successMessage" class="success-message">
+                {{ successMessage }}
+              </div>
+              <div *ngIf="errorMessage" class="error-message">
+                {{ errorMessage }}
+              </div>
+
               <!-- ================= LOGIN ================= -->
               <form *ngIf="currentForm === 'login'"
               #loginForm="ngForm"
               (ngSubmit)="login(loginForm)">
-              {{successMessage}}
 
           <div class="field padding-bottom--24">
             <label>Email</label>
@@ -78,12 +85,20 @@
               <div class="reset-pass">
             <a (click)="showForm('forgot')">Forgot your password?</a>
           </div>
-
-            
           </div>
-        
+
           <div class="field padding-bottom--24">
             <input type="submit" value="Continue">
+          </div>
+
+          <div class="field padding-bottom--24">
+            <button type="button" class="google-btn" (click)="loginWithGoogle()">
+              <i class="fab fa-google"></i> Sign in with Google
+            </button>
+          </div>
+
+          <div class="field">
+            <a href="/register">Don't have an account? Register</a>
           </div>
         </form>
 

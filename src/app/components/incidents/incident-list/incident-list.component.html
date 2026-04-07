@@ -1,0 +1,76 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-exclamation-triangle"></i> Incidents</h2>
+    <button class="btn btn-secondary" (click)="goToKpi()">
+      <i class="fas fa-chart-bar"></i> KPI Dashboard
+    </button>
+  </div>
+
+  <!-- Site selector -->
+  <div class="filter-row">
+    <select [(ngModel)]="selectedSiteId">
+      <option [ngValue]="null">-- Select a site --</option>
+      <option *ngFor="let site of sites" [ngValue]="site.idSite">{{ site.nom }}</option>
+    </select>
+    <button class="btn btn-primary" (click)="loadIncidents()" [disabled]="!selectedSiteId">
+      <i class="fas fa-search"></i> Load Incidents
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading incidents...
+  </div>
+
+  <div *ngIf="!loading && incidents.length === 0 && selectedSiteId" class="empty-state">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>No incidents found for this site.</p>
+  </div>
+
+  <table *ngIf="!loading && incidents.length > 0" class="sites-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Severity</th>
+        <th>State</th>
+        <th>Date</th>
+        <th>Cost Est.</th>
+        <th>Cost Real</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let inc of incidents">
+        <td>{{ inc.idInncident }}</td>
+        <td>{{ inc.description | slice:0:50 }}</td>
+        <td>
+          <span class="badge" [ngClass]="{
+            'badge-low': inc.severityCode === 'LOW',
+            'badge-medium': inc.severityCode === 'MEDIUM',
+            'badge-high': inc.severityCode === 'HIGH',
+            'badge-critical': inc.severityCode === 'CRITICAL'
+          }">
+            {{ inc.severityCode }}
+          </span>
+        </td>
+        <td>
+          <span class="badge" [ngClass]="{
+            'badge-open': inc.etatIncident === 'OPEN',
+            'badge-inprogress': inc.etatIncident === 'IN_PROGRESS',
+            'badge-closed': inc.etatIncident === 'CLOSED'
+          }">
+            {{ inc.etatIncident }}
+          </span>
+        </td>
+        <td>{{ inc.date }}</td>
+        <td>{{ inc.costEstimated | number:'1.2-2' }}</td>
+        <td>{{ inc.costReal | number:'1.2-2' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

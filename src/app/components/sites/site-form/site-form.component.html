@@ -1,0 +1,92 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-form-container">
+  <div class="header">
+    <h2>
+      <i class="fas" [ngClass]="isEditMode ? 'fa-edit' : 'fa-plus-circle'"></i>
+      {{ isEditMode ? 'Edit Site' : 'Create Site' }}
+    </h2>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading && isEditMode" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading site data...
+  </div>
+
+  <form *ngIf="!loading || !isEditMode" [formGroup]="siteForm" (ngSubmit)="onSubmit()" class="form-card">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="codeRef">Code Reference *</label>
+        <input id="codeRef" formControlName="codeRef" placeholder="e.g. UK-PLANT-1">
+        <span class="error" *ngIf="siteForm.get('codeRef')?.touched && siteForm.get('codeRef')?.invalid">
+          Code reference is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="nom">Site Name *</label>
+        <input id="nom" formControlName="nom" placeholder="e.g. London Factory">
+        <span class="error" *ngIf="siteForm.get('nom')?.touched && siteForm.get('nom')?.invalid">
+          Site name is required
+        </span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="latitude">Latitude *</label>
+        <input id="latitude" type="number" formControlName="latitude" placeholder="-90 to 90" step="any">
+        <span class="error" *ngIf="siteForm.get('latitude')?.touched && siteForm.get('latitude')?.invalid">
+          Valid latitude required (-90 to 90)
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="longitude">Longitude *</label>
+        <input id="longitude" type="number" formControlName="longitude" placeholder="-180 to 180" step="any">
+        <span class="error" *ngIf="siteForm.get('longitude')?.touched && siteForm.get('longitude')?.invalid">
+          Valid longitude required (-180 to 180)
+        </span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="countryCode">Country Code *</label>
+        <input id="countryCode" formControlName="countryCode" placeholder="e.g. UK" maxlength="3">
+        <span class="error" *ngIf="siteForm.get('countryCode')?.touched && siteForm.get('countryCode')?.invalid">
+          Country code is required (max 3 chars)
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="currencyCode">Currency Code *</label>
+        <input id="currencyCode" formControlName="currencyCode" placeholder="e.g. GBP" maxlength="3">
+        <span class="error" *ngIf="siteForm.get('currencyCode')?.touched && siteForm.get('currencyCode')?.invalid">
+          Currency code is required (max 3 chars)
+        </span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="statusSites">Status *</label>
+        <select id="statusSites" formControlName="statusSites">
+          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </button>
+    </div>
+  </form>
+</div>

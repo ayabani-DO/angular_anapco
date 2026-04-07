@@ -1,0 +1,82 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-form-container">
+  <div class="header">
+    <h2>
+      <i class="fas" [ngClass]="isEditMode ? 'fa-edit' : 'fa-plus-circle'"></i>
+      {{ isEditMode ? 'Edit Equipement' : 'Create Equipement' }}
+    </h2>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading && isEditMode" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading equipement data...
+  </div>
+
+  <form *ngIf="!loading || !isEditMode" [formGroup]="equipementForm" (ngSubmit)="onSubmit()" class="form-card">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nomEquipement">Equipement Name *</label>
+        <input id="nomEquipement" formControlName="nomEquipement" placeholder="e.g. Compressor A1">
+        <span class="error" *ngIf="equipementForm.get('nomEquipement')?.touched && equipementForm.get('nomEquipement')?.invalid">
+          Equipement name is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="refEquipement">Reference *</label>
+        <input id="refEquipement" formControlName="refEquipement" placeholder="e.g. EQ-REF-001">
+        <span class="error" *ngIf="equipementForm.get('refEquipement')?.touched && equipementForm.get('refEquipement')?.invalid">
+          Reference is required
+        </span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="serialNumber">Serial Number *</label>
+        <input id="serialNumber" formControlName="serialNumber" placeholder="e.g. SN-12345">
+        <span class="error" *ngIf="equipementForm.get('serialNumber')?.touched && equipementForm.get('serialNumber')?.invalid">
+          Serial number is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="statusEquipement">Status *</label>
+        <select id="statusEquipement" formControlName="statusEquipement">
+          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="categorieId">Category</label>
+        <select id="categorieId" formControlName="categorieId">
+          <option [ngValue]="null">-- No category --</option>
+          <option *ngFor="let cat of categories" [ngValue]="cat.idCategorie">{{ cat.nomEquiepment }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="siteId">Site</label>
+        <select id="siteId" formControlName="siteId">
+          <option [ngValue]="null">-- No site --</option>
+          <option *ngFor="let site of sites" [ngValue]="site.idSite">{{ site.nom }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </button>
+    </div>
+  </form>
+</div>

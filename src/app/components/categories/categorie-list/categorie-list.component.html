@@ -1,0 +1,52 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-layer-group"></i> Catégories</h2>
+    <button class="btn btn-primary" (click)="goToCreate()">
+      <i class="fas fa-plus"></i> New Category
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading categories...
+  </div>
+
+  <div *ngIf="!loading && categories.length === 0" class="empty-state">
+    <i class="fas fa-layer-group"></i>
+    <p>No categories found. Create your first category.</p>
+  </div>
+
+  <table *ngIf="!loading && categories.length > 0" class="sites-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cat of categories">
+        <td>{{ cat.idCategorie }}</td>
+        <td class="site-name" (click)="goToDetail(cat.idCategorie!)">{{ cat.nomEquiepment }}</td>
+        <td>{{ cat.description }}</td>
+        <td class="actions">
+          <button class="btn-icon" title="View" (click)="goToDetail(cat.idCategorie!)">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn-icon" title="Edit" (click)="goToEdit(cat.idCategorie!)">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-danger" title="Delete" (click)="deleteCategorie(cat.idCategorie!)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

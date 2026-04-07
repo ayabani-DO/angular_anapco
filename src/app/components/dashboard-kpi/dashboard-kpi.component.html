@@ -1,0 +1,82 @@
+<app-sidebar></app-sidebar>
+
+<div class="kpi-container">
+  <div class="header">
+    <h2><i class="fas fa-chart-bar"></i> Dashboard KPI Incidents</h2>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Site</label>
+        <select [(ngModel)]="selectedSiteId">
+          <option [ngValue]="null">-- Select a site --</option>
+          <option *ngFor="let site of sites" [ngValue]="site.idSite">{{ site.nom }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Year</label>
+        <input type="number" [(ngModel)]="selectedYear">
+      </div>
+      <div class="filter-group">
+        <label>Month</label>
+        <input type="number" [(ngModel)]="selectedMonth" min="1" max="12">
+      </div>
+      <div class="filter-group">
+        <label>Currency</label>
+        <input type="text" [(ngModel)]="targetCurrency" placeholder="USD">
+      </div>
+      <div class="filter-group">
+        <label>Trend Months</label>
+        <input type="number" [(ngModel)]="trendMonths" min="1" max="24">
+      </div>
+      <button class="btn btn-primary" (click)="loadDashboard()" [disabled]="!selectedSiteId">
+        <i class="fas fa-search"></i> Load Dashboard
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading KPI data...
+  </div>
+
+  <!-- Risk Score -->
+  <div *ngIf="riskScore" class="kpi-cards">
+    <div class="kpi-card">
+      <div class="kpi-label">Risk Score</div>
+      <div class="kpi-value" [ngClass]="{
+        'positive': riskScore.riskScore != null && riskScore.riskScore < 30,
+        'warning': riskScore.riskScore != null && riskScore.riskScore >= 30 && riskScore.riskScore < 70,
+        'negative': riskScore.riskScore != null && riskScore.riskScore >= 70
+      }">
+        {{ riskScore.riskScore | number:'1.1-1' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Data -->
+  <div *ngIf="dashboardData && !loading" class="dashboard-section">
+    <div class="section-card">
+      <h3><i class="fas fa-exclamation-circle"></i> Severity Distribution</h3>
+      <pre class="json-display">{{ dashboardData.severityKpi | json }}</pre>
+    </div>
+
+    <div class="section-card">
+      <h3><i class="fas fa-sync-alt"></i> Lifecycle</h3>
+      <pre class="json-display">{{ dashboardData.lifecycleKpi | json }}</pre>
+    </div>
+
+    <div class="section-card">
+      <h3><i class="fas fa-dollar-sign"></i> Cost Analysis</h3>
+      <pre class="json-display">{{ dashboardData.costKpi | json }}</pre>
+    </div>
+  </div>
+
+  <!-- Trend Data -->
+  <div *ngIf="trendData && !loading" class="section-card full-width">
+    <h3><i class="fas fa-chart-line"></i> Trend ({{ trendMonths }} months)</h3>
+    <pre class="json-display">{{ trendData | json }}</pre>
+  </div>
+</div>

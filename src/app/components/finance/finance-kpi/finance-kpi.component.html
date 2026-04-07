@@ -1,0 +1,73 @@
+<app-sidebar></app-sidebar>
+
+<div class="kpi-container">
+  <div class="header">
+    <h2><i class="fas fa-chart-pie"></i> Finance KPI Dashboard</h2>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Site</label>
+        <select [(ngModel)]="selectedSiteId">
+          <option [ngValue]="null">-- Select a site --</option>
+          <option *ngFor="let site of sites" [ngValue]="site.idSite">{{ site.nom }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Year</label>
+        <input type="number" [(ngModel)]="selectedYear">
+      </div>
+      <div class="filter-group">
+        <label>Month</label>
+        <input type="number" [(ngModel)]="selectedMonth" min="1" max="12">
+      </div>
+      <button class="btn btn-primary" (click)="loadKpi()" [disabled]="!selectedSiteId">
+        <i class="fas fa-search"></i> Load KPI
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading KPI data...
+  </div>
+
+  <div *ngIf="kpiData && !loading" class="kpi-cards">
+    <div class="kpi-card">
+      <div class="kpi-label">Budget (EUR)</div>
+      <div class="kpi-value">{{ kpiData.budgetEur | number:'1.2-2' }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Real (EUR)</div>
+      <div class="kpi-value expense">{{ kpiData.realEur | number:'1.2-2' }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Variance (EUR)</div>
+      <div class="kpi-value" [ngClass]="(kpiData.varianceEur ?? 0) >= 0 ? 'positive' : 'negative'">
+        {{ kpiData.varianceEur | number:'1.2-2' }}
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Variance %</div>
+      <div class="kpi-value" [ngClass]="(kpiData.variancePercent ?? 0) >= 0 ? 'positive' : 'negative'">
+        {{ kpiData.variancePercent | number:'1.1-1' }}%
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Forecast (EUR)</div>
+      <div class="kpi-value">{{ kpiData.forecastEur | number:'1.2-2' }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Risk Level</div>
+      <div class="kpi-value" [ngClass]="{
+        'positive': kpiData.riskLevel === 'LOW',
+        'warning': kpiData.riskLevel === 'MEDIUM',
+        'negative': kpiData.riskLevel === 'HIGH'
+      }">
+        {{ kpiData.riskLevel }}
+      </div>
+    </div>
+  </div>
+</div>

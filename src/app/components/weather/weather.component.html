@@ -1,0 +1,195 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-cloud-sun"></i> Weather Module</h2>
+  </div>
+
+  <!-- Site Selector -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <select [(ngModel)]="selectedSiteId">
+        <option [ngValue]="null">-- Select a site --</option>
+        <option *ngFor="let site of sites" [ngValue]="site.idSite">{{ site.nom }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">Overview</button>
+    <button class="tab-btn" [class.active]="activeTab === 'data'" (click)="activeTab = 'data'">Weather Data</button>
+    <button class="tab-btn" [class.active]="activeTab === 'alerts'" (click)="activeTab = 'alerts'">Alerts</button>
+    <button class="tab-btn" [class.active]="activeTab === 'risk'" (click)="activeTab = 'risk'">Risk Assessment</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+  <!-- Overview Tab -->
+  <div *ngIf="activeTab === 'overview'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="loadOverview()" [disabled]="!selectedSiteId">
+        <i class="fas fa-eye"></i> Load Overview
+      </button>
+    </div>
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <div *ngIf="overview && !loading" class="overview-grid">
+      <div class="overview-card">
+        <h4><i class="fas fa-thermometer-half"></i> Latest Weather</h4>
+        <div *ngIf="overview.latestWeatherData; else noWeather">
+          <p><strong>Temp:</strong> {{ overview.latestWeatherData.temperature }}°C</p>
+          <p><strong>Humidity:</strong> {{ overview.latestWeatherData.humidity }}%</p>
+          <p><strong>Wind:</strong> {{ overview.latestWeatherData.windSpeed }} km/h</p>
+          <p><strong>Precipitation:</strong> {{ overview.latestWeatherData.precipitation }} mm</p>
+        </div>
+        <ng-template #noWeather><p class="muted">No weather data available</p></ng-template>
+      </div>
+
+      <div class="overview-card">
+        <h4><i class="fas fa-shield-alt"></i> Risk Assessment</h4>
+        <div *ngIf="overview.latestAssessment; else noRisk">
+          <p><strong>Score:</strong> {{ overview.latestAssessment.riskScore }}</p>
+          <p><strong>Level:</strong> {{ overview.latestAssessment.riskLevel }}</p>
+          <p><strong>Details:</strong> {{ overview.latestAssessment.details }}</p>
+        </div>
+        <ng-template #noRisk><p class="muted">No risk assessment yet</p></ng-template>
+      </div>
+
+      <div class="overview-card">
+        <h4><i class="fas fa-bell"></i> Active Alerts ({{ overview.alerts.length || 0 }})</h4>
+        <div *ngFor="let alert of overview.alerts | slice:0:3">
+          <p><span class="badge" [ngClass]="getAlertBadgeClass(alert.status)">{{ alert.status }}</span> {{ alert.message }}</p>
+        </div>
+        <p *ngIf="!overview.alerts?.length" class="muted">No alerts</p>
+      </div>
+
+      <div class="overview-card">
+        <h4><i class="fas fa-lightbulb"></i> Recommendations ({{ overview.recommendations.length || 0 }})</h4>
+        <div *ngFor="let rec of overview.recommendations | slice:0:3">
+          <p><strong>{{ rec.priority }}:</strong> {{ rec.message }}</p>
+        </div>
+        <p *ngIf="!overview.recommendations?.length" class="muted">No recommendations</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weather Data Tab -->
+  <div *ngIf="activeTab === 'data'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="loadWeatherData()" [disabled]="!selectedSiteId">
+        <i class="fas fa-database"></i> Load Data
+      </button>
+      <label>Forecast days:</label>
+      <input type="number" [(ngModel)]="forecastDays" min="1" max="14" style="width:70px;">
+      <button class="btn btn-secondary" (click)="syncForecast()" [disabled]="!selectedSiteId">
+        <i class="fas fa-cloud-download-alt"></i> Sync Forecast
+      </button>
+      <label>Historical days:</label>
+      <input type="number" [(ngModel)]="historicalDays" min="1" max="90" style="width:70px;">
+      <button class="btn btn-secondary" (click)="syncHistorical()" [disabled]="!selectedSiteId">
+        <i class="fas fa-history"></i> Sync Historical
+      </button>
+    </div>
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && weatherData.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Temp (°C)</th>
+          <th>Humidity (%)</th>
+          <th>Wind (km/h)</th>
+          <th>Precipitation (mm)</th>
+          <th>Pressure (hPa)</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let w of weatherData">
+          <td>{{ w.date }}</td>
+          <td>{{ w.temperature }}</td>
+          <td>{{ w.humidity }}</td>
+          <td>{{ w.windSpeed }}</td>
+          <td>{{ w.precipitation }}</td>
+          <td>{{ w.pressure }}</td>
+          <td>{{ w.source }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!loading && weatherData.length === 0" class="empty-state"><p>No weather data.</p></div>
+  </div>
+
+  <!-- Alerts Tab -->
+  <div *ngIf="activeTab === 'alerts'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="loadAlerts()" [disabled]="!selectedSiteId">
+        <i class="fas fa-bell"></i> Load Alerts
+      </button>
+    </div>
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && alerts.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Severity</th>
+          <th>Message</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let alert of alerts">
+          <td>{{ alert.id }}</td>
+          <td>{{ alert.alertType }}</td>
+          <td>{{ alert.severity }}</td>
+          <td>{{ alert.message }}</td>
+          <td><span class="badge" [ngClass]="getAlertBadgeClass(alert.status)">{{ alert.status }}</span></td>
+          <td>
+            <select (change)="updateAlertStatus(alert.id!, $any($event.target).value)">
+              <option value="" disabled selected>Change status</option>
+              <option *ngFor="let s of alertStatuses" [value]="s">{{ s }}</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!loading && alerts.length === 0" class="empty-state"><p>No alerts.</p></div>
+  </div>
+
+  <!-- Risk Assessment Tab -->
+  <div *ngIf="activeTab === 'risk'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="loadRiskHistory()" [disabled]="!selectedSiteId">
+        <i class="fas fa-history"></i> Load History
+      </button>
+      <button class="btn btn-danger" (click)="assessRisk()" [disabled]="!selectedSiteId">
+        <i class="fas fa-bolt"></i> Assess Now
+      </button>
+    </div>
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && riskHistory.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Risk Score</th>
+          <th>Risk Level</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of riskHistory">
+          <td>{{ r.assessedAt }}</td>
+          <td>{{ r.riskScore }}</td>
+          <td>{{ r.riskLevel }}</td>
+          <td>{{ r.details }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!loading && riskHistory.length === 0" class="empty-state"><p>No risk assessments.</p></div>
+  </div>
+</div>

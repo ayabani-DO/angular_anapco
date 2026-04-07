@@ -1,0 +1,71 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-exchange-alt"></i> Taux de Change (FX Rates)</h2>
+    <button class="btn btn-primary" (click)="goToCreate()">
+      <i class="fas fa-plus"></i> New FX Rate
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="fetchMessage" class="alert alert-info">{{ fetchMessage }}</div>
+
+  <!-- Fetch actions -->
+  <div class="fetch-section">
+    <div class="fetch-row">
+      <select [(ngModel)]="fetchCurrency" class="fetch-input">
+          <option value="">-- Currency --</option>
+          <option *ngFor="let c of validCurrencies" [value]="c">{{ c }}</option>
+        </select>
+      <button class="btn btn-primary" (click)="fetchLatest()" [disabled]="!fetchCurrency">
+        <i class="fas fa-download"></i> Fetch Latest
+      </button>
+      <input type="date" [(ngModel)]="fetchDate" class="fetch-input">
+      <button class="btn btn-primary" (click)="fetchHistorical()" [disabled]="!fetchCurrency || !fetchDate">
+        <i class="fas fa-history"></i> Fetch Historical
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading FX rates...
+  </div>
+
+  <div *ngIf="!loading && fxRates.length === 0" class="empty-state">
+    <i class="fas fa-exchange-alt"></i>
+    <p>No FX rates found.</p>
+  </div>
+
+  <table *ngIf="!loading && fxRates.length > 0" class="sites-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Rate</th>
+        <th>Year</th>
+        <th>Month</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let fx of fxRates">
+        <td>{{ fx.idFxRate }}</td>
+        <td>{{ fx.fromCurrency }}</td>
+        <td>{{ fx.toCurrency }}</td>
+        <td>{{ fx.rate | number:'1.4-6' }}</td>
+        <td>{{ fx.year }}</td>
+        <td>{{ fx.month }}</td>
+        <td class="actions">
+          <button class="btn-icon" title="Edit" (click)="goToEdit(fx.idFxRate!)">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-danger" title="Delete" (click)="deleteFxRate(fx.idFxRate!)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

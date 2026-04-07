@@ -1,0 +1,66 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-laptop-code"></i> Équipements</h2>
+    <button class="btn btn-primary" (click)="goToCreate()">
+      <i class="fas fa-plus"></i> New Equipement
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading equipements...
+  </div>
+
+  <div *ngIf="!loading && equipements.length === 0" class="empty-state">
+    <i class="fas fa-laptop-code"></i>
+    <p>No equipements found. Create your first equipement.</p>
+  </div>
+
+  <table *ngIf="!loading && equipements.length > 0" class="sites-table">
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>Name</th>
+        <th>Serial Number</th>
+        <th>Category</th>
+        <th>Site</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let eq of equipements">
+        <td>{{ eq.refEquipement }}</td>
+        <td class="site-name" (click)="goToDetail(eq.idEquipement!)">{{ eq.nomEquipement }}</td>
+        <td>{{ eq.serialNumber }}</td>
+        <td>{{ eq.categorie?.nomEquiepment || '—' }}</td>
+        <td>{{ eq.site?.nom || '—' }}</td>
+        <td>
+          <span class="badge" [ngClass]="{
+            'badge-active': eq.statusEquipement === 'ACTIF',
+            'badge-inactive': eq.statusEquipement === 'SUSPENDUE',
+            'badge-maintenance': eq.statusEquipement === 'OUTOFSERVICE'
+          }">
+            {{ eq.statusEquipement }}
+          </span>
+        </td>
+        <td class="actions">
+          <button class="btn-icon" title="View" (click)="goToDetail(eq.idEquipement!)">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn-icon" title="Edit" (click)="goToEdit(eq.idEquipement!)">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-danger" title="Delete" (click)="deleteEquipement(eq.idEquipement!)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

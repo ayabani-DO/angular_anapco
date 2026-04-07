@@ -1,0 +1,86 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-detail-container">
+  <div class="header">
+    <button class="btn btn-back" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Back to Equipements
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading equipement details...
+  </div>
+
+  <div *ngIf="!loading && equipement" class="detail-card">
+    <div class="detail-header">
+      <div>
+        <h2>{{ equipement.nomEquipement }}</h2>
+        <span class="code-ref">{{ equipement.refEquipement }}</span>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-primary" (click)="goToEdit()">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn btn-danger" (click)="deleteEquipement()">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Status</label>
+        <span class="badge" [ngClass]="{
+          'badge-active': equipement.statusEquipement === 'ACTIF',
+          'badge-inactive': equipement.statusEquipement === 'SUSPENDUE',
+          'badge-maintenance': equipement.statusEquipement === 'OUTOFSERVICE'
+        }">
+          {{ equipement.statusEquipement }}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <label>Serial Number</label>
+        <span>{{ equipement.serialNumber }}</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Category</label>
+        <span>{{ equipement.categorie?.nomEquiepment || '—' }}</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Site</label>
+        <span>{{ equipement.site?.nom || '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Affect to Category -->
+  <div *ngIf="!loading && equipement" class="affect-section">
+    <h3><i class="fas fa-link"></i> Affect to Category</h3>
+
+    <div *ngIf="affectMessage" class="alert alert-info">
+      {{ affectMessage }}
+    </div>
+
+    <div class="affect-form">
+      <select [(ngModel)]="selectedCategorieId" class="affect-input">
+        <option [ngValue]="null">-- Select a category --</option>
+        <option *ngFor="let cat of categories" [ngValue]="cat.idCategorie">{{ cat.nomEquiepment }}</option>
+      </select>
+      <button class="btn btn-primary" (click)="affectToCategorie()" [disabled]="!selectedCategorieId">
+        <i class="fas fa-link"></i> Affect
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !equipement" class="empty-state">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>Equipement not found.</p>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-receipt"></i> Dépenses Manuelles</h2>
+    <button class="btn btn-primary" (click)="goToCreate()">
+      <i class="fas fa-plus"></i> New Expense
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading expenses...
+  </div>
+
+  <div *ngIf="!loading && expenses.length === 0" class="empty-state">
+    <i class="fas fa-receipt"></i>
+    <p>No expenses found.</p>
+  </div>
+
+  <table *ngIf="!loading && expenses.length > 0" class="sites-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Amount</th>
+        <th>Currency</th>
+        <th>Site</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let exp of expenses">
+        <td>{{ exp.id }}</td>
+        <td>{{ exp.date }}</td>
+        <td><span class="badge badge-cat">{{ exp.category }}</span></td>
+        <td>{{ exp.amount | number:'1.2-2' }}</td>
+        <td>{{ exp.currencyCode || '—' }}</td>
+        <td>{{ exp.site?.nom || '—' }}</td>
+        <td class="actions">
+          <button class="btn-icon" title="Edit" (click)="goToEdit(exp.id!)">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-danger" title="Delete" (click)="deleteExpense(exp.id!)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

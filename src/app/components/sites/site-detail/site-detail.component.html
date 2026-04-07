@@ -1,0 +1,122 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-detail-container">
+  <div class="header">
+    <button class="btn btn-back" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Back to Sites
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading site details...
+  </div>
+
+  <div *ngIf="!loading && site" class="detail-card">
+    <div class="detail-header">
+      <div>
+        <h2>{{ site.nom }}</h2>
+        <span class="code-ref">{{ site.codeRef }}</span>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-primary" (click)="goToEdit()">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn btn-danger" (click)="deleteSite()">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Status</label>
+        <span class="badge" [ngClass]="{
+          'badge-active': site.statusSites === 'ACTIF',
+          'badge-inactive': site.statusSites === 'SUSPENDUE',
+          'badge-maintenance': site.statusSites === 'FERME'
+        }">
+          {{ site.statusSites }}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <label>Country Code</label>
+        <span>{{ site.countryCode }}</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Currency</label>
+        <span>{{ site.currencyCode }}</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Latitude</label>
+        <span>{{ site.latitude }}</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Longitude</label>
+        <span>{{ site.longitude }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= INCIDENTS SECTION ================= -->
+  <div *ngIf="!loading && site" class="incidents-section">
+    <div class="incidents-header">
+      <h3><i class="fas fa-exclamation-circle"></i> Incidents</h3>
+    </div>
+
+    <div *ngIf="affectMessage" class="alert alert-info">
+      {{ affectMessage }}
+    </div>
+
+    <div class="affect-incident-form">
+      <input type="number"
+             [(ngModel)]="incidentIdToAffect"
+             placeholder="Incident ID"
+             class="affect-input">
+      <button class="btn btn-primary" (click)="affectIncident()" [disabled]="!incidentIdToAffect">
+        <i class="fas fa-link"></i> Affect Incident
+      </button>
+    </div>
+
+    <div *ngIf="loadingIncidents" class="loading">
+      <i class="fas fa-spinner fa-spin"></i> Loading incidents...
+    </div>
+
+    <div *ngIf="!loadingIncidents && incidents.length === 0" class="empty-state-small">
+      <p>No incidents linked to this site.</p>
+    </div>
+
+    <table *ngIf="!loadingIncidents && incidents.length > 0" class="incidents-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Description</th>
+          <th>Severity</th>
+          <th>State</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let incident of incidents">
+          <td>{{ incident.idInncident }}</td>
+          <td>{{ incident.description }}</td>
+          <td>{{ incident.severityCode }}</td>
+          <td>{{ incident.etatIncident }}</td>
+          <td>{{ incident.date }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!loading && !site" class="empty-state">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>Site not found.</p>
+  </div>
+</div>

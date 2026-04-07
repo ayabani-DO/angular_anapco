@@ -1,0 +1,85 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-detail-container">
+  <div class="header">
+    <button class="btn btn-back" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Back to Categories
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading category details...
+  </div>
+
+  <div *ngIf="!loading && categorie" class="detail-card">
+    <div class="detail-header">
+      <div>
+        <h2>{{ categorie.nomEquiepment }}</h2>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-primary" (click)="goToEdit()">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn btn-danger" (click)="deleteCategorie()">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <label>Description</label>
+        <span>{{ categorie.description }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipements in this category -->
+  <div *ngIf="!loading && categorie" class="equipements-section">
+    <h3><i class="fas fa-laptop-code"></i> Equipements in this Category</h3>
+
+    <div *ngIf="loadingEquipements" class="loading">
+      <i class="fas fa-spinner fa-spin"></i> Loading equipements...
+    </div>
+
+    <div *ngIf="!loadingEquipements && equipements.length === 0" class="empty-state-small">
+      <p>No equipements in this category.</p>
+    </div>
+
+    <table *ngIf="!loadingEquipements && equipements.length > 0" class="equipements-table">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Name</th>
+          <th>Serial Number</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let eq of equipements">
+          <td>{{ eq.refEquipement }}</td>
+          <td>{{ eq.nomEquipement }}</td>
+          <td>{{ eq.serialNumber }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-active': eq.statusEquipement === 'ACTIF',
+              'badge-inactive': eq.statusEquipement === 'SUSPENDUE',
+              'badge-maintenance': eq.statusEquipement === 'OUTOFSERVICE'
+            }">
+              {{ eq.statusEquipement }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!loading && !categorie" class="empty-state">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>Category not found.</p>
+  </div>
+</div>

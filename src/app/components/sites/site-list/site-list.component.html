@@ -1,0 +1,64 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-industry"></i> Sites</h2>
+    <button class="btn btn-primary" (click)="goToCreate()">
+      <i class="fas fa-plus"></i> New Site
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading sites...
+  </div>
+
+  <div *ngIf="!loading && sites.length === 0" class="empty-state">
+    <i class="fas fa-map-marker-alt"></i>
+    <p>No sites found. Create your first site.</p>
+  </div>
+
+  <table *ngIf="!loading && sites.length > 0" class="sites-table">
+    <thead>
+      <tr>
+        <th>Code Ref</th>
+        <th>Name</th>
+        <th>Country</th>
+        <th>Currency</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let site of sites">
+        <td>{{ site.codeRef }}</td>
+        <td class="site-name" (click)="goToDetail(site.idSite!)">{{ site.nom }}</td>
+        <td>{{ site.countryCode }}</td>
+        <td>{{ site.currencyCode }}</td>
+        <td>
+          <span class="badge" [ngClass]="{
+            'badge-active': site.statusSites === 'ACTIF',
+            'badge-inactive': site.statusSites === 'SUSPENDUE',
+            'badge-maintenance': site.statusSites === 'FERME'
+          }">
+            {{ site.statusSites }}
+          </span>
+        </td>
+        <td class="actions">
+          <button class="btn-icon" title="View" (click)="goToDetail(site.idSite!)">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn-icon" title="Edit" (click)="goToEdit(site.idSite!)">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-danger" title="Delete" (click)="deleteSite(site.idSite!)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,120 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-coins"></i> Equipment Cost Analysis</h2>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'site'" (click)="activeTab = 'site'">By Site</button>
+    <button class="tab-btn" [class.active]="activeTab === 'top'" (click)="activeTab = 'top'">Top Expensive</button>
+    <button class="tab-btn" [class.active]="activeTab === 'trend'" (click)="activeTab = 'trend'">Monthly Trend</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <!-- By Site Tab -->
+  <div *ngIf="activeTab === 'site'" class="tab-content">
+    <div class="filter-row">
+      <select [(ngModel)]="selectedSiteId">
+        <option [ngValue]="null">-- Select a site --</option>
+        <option *ngFor="let site of sites" [ngValue]="site.idSite">{{ site.nom }}</option>
+      </select>
+      <button class="btn btn-primary" (click)="loadBySite()" [disabled]="!selectedSiteId">
+        <i class="fas fa-search"></i> Analyze
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && costData.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>Equipment</th>
+          <th>Ref</th>
+          <th>Incident Cost</th>
+          <th>Maintenance Cost</th>
+          <th>Total Cost</th>
+          <th>Category</th>
+          <th>Prev / Corr / Insp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of costData">
+          <td>{{ item.equipmentName }}</td>
+          <td>{{ item.equipmentRef }}</td>
+          <td>{{ item.totalIncidentCost | number:'1.2-2' }}</td>
+          <td>{{ item.totalMaintenanceCost | number:'1.2-2' }}</td>
+          <td><strong>{{ item.totalCost | number:'1.2-2' }}</strong></td>
+          <td><span class="badge" [ngClass]="getCategoryBadgeClass(item.costCategory)">{{ item.costCategory }}</span></td>
+          <td>{{ item.preventiveCount }} / {{ item.correctiveCount }} / {{ item.inspectionCount }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top Expensive Tab -->
+  <div *ngIf="activeTab === 'top'" class="tab-content">
+    <div class="filter-row">
+      <label>Limit:</label>
+      <input type="number" [(ngModel)]="topLimit" min="1" max="100" style="width:80px;">
+      <button class="btn btn-primary" (click)="loadTopExpensive()">
+        <i class="fas fa-trophy"></i> Load
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && topExpensive.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Equipment</th>
+          <th>Ref</th>
+          <th>Total Cost</th>
+          <th>Avg/Incident</th>
+          <th>Avg/Maintenance</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of topExpensive; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ item.equipmentName }}</td>
+          <td>{{ item.equipmentRef }}</td>
+          <td><strong>{{ item.totalCost | number:'1.2-2' }}</strong></td>
+          <td>{{ item.averageCostPerIncident | number:'1.2-2' }}</td>
+          <td>{{ item.averageCostPerMaintenance | number:'1.2-2' }}</td>
+          <td><span class="badge" [ngClass]="getCategoryBadgeClass(item.costCategory)">{{ item.costCategory }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Monthly Trend Tab -->
+  <div *ngIf="activeTab === 'trend'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="loadMonthlyCostTrend()">
+        <i class="fas fa-chart-line"></i> Load Global Trend
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && trendEntries().length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Total Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of trendEntries()">
+          <td>{{ entry[0] }}</td>
+          <td><strong>{{ entry[1] | number:'1.2-2' }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
