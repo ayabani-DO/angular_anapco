@@ -1,0 +1,237 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-brain"></i> ML / AI Module</h2>
+    <button class="btn btn-primary" (click)="train()" [disabled]="loading">
+      <i class="fas fa-graduation-cap"></i> Train Models
+    </button>
+  </div>
+
+  <!-- Health Status -->
+  <div *ngIf="healthData" class="health-bar">
+    <span class="health-item">
+      <i class="fas fa-circle" [style.color]="healthData.costModelReady ? '#16a34a' : '#dc2626'"></i>
+      Cost Model: {{ healthData.costModelReady ? 'Ready' : 'Not Ready' }}
+    </span>
+    <span class="health-item">
+      <i class="fas fa-circle" [style.color]="healthData.riskModelReady ? '#16a34a' : '#dc2626'"></i>
+      Risk Model: {{ healthData.riskModelReady ? 'Ready' : 'Not Ready' }}
+    </span>
+    <span *ngIf="healthData.lastTrainingDate" class="health-item">
+      <i class="fas fa-clock"></i> Last trained: {{ healthData.lastTrainingDate }}
+    </span>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'predict'" (click)="activeTab = 'predict'">Predictions</button>
+    <button class="tab-btn" [class.active]="activeTab === 'explain'" (click)="activeTab = 'explain'">Explanations</button>
+    <button class="tab-btn" [class.active]="activeTab === 'features'" (click)="activeTab = 'features'">Features</button>
+    <button class="tab-btn" [class.active]="activeTab === 'health'" (click)="activeTab = 'health'">Health</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+  <!-- Filters -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Site</label>
+        <select [(ngModel)]="selectedSiteId">
+          <option [ngValue]="null">-- Select a site --</option>
+          <option *ngFor="let site of sites" [ngValue]="site.idSite">{{ site.nom }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Year</label>
+        <input type="number" [(ngModel)]="selectedYear">
+      </div>
+      <div class="filter-group">
+        <label>Month</label>
+        <input type="number" [(ngModel)]="selectedMonth" min="1" max="12">
+      </div>
+    </div>
+  </div>
+
+  <!-- Predictions Tab -->
+  <div *ngIf="activeTab === 'predict'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="predictCost()" [disabled]="!selectedSiteId || loading">
+        <i class="fas fa-dollar-sign"></i> Predict Cost
+      </button>
+      <button class="btn btn-primary" (click)="predictRisk()" [disabled]="!selectedSiteId || loading">
+        <i class="fas fa-shield-alt"></i> Predict Risk
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <div class="kpi-cards">
+      <div *ngIf="costPrediction" class="kpi-card">
+        <div class="kpi-label">Cost Prediction</div>
+        <div class="kpi-value" *ngIf="costPrediction.predictedValue != null">${{ costPrediction.predictedValue | number:'1.2-2' }}</div>
+        <div *ngIf="costPrediction.confidence" class="kpi-sub">Confidence: {{ costPrediction.confidence | number:'1.1-1' }}%</div>
+        <div *ngIf="costPrediction.modelVersion" class="kpi-sub">Model: {{ costPrediction.modelVersion }}</div>
+      </div>
+      <div *ngIf="riskPrediction" class="kpi-card">
+        <div class="kpi-label">Risk Prediction</div>
+        <div class="kpi-value" *ngIf="riskPrediction.predictedValue != null">{{ riskPrediction.predictedValue | number:'1.2-2' }}</div>
+        <div *ngIf="riskPrediction.confidence" class="kpi-sub">Confidence: {{ riskPrediction.confidence | number:'1.1-1' }}%</div>
+        <div *ngIf="riskPrediction.modelVersion" class="kpi-sub">Model: {{ riskPrediction.modelVersion }}</div>
+      </div>
+    </div>
+
+    <div *ngIf="costPrediction && costPrediction.predictedValue == null" class="explanation-card">
+      <h4><i class="fas fa-info-circle"></i> Cost Prediction Details</h4>
+      <table class="sites-table">
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let entry of getObjectEntries(costPrediction)"><td>{{ entry[0] }}</td><td>{{ entry[1] }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="riskPrediction && riskPrediction.predictedValue == null" class="explanation-card">
+      <h4><i class="fas fa-info-circle"></i> Risk Prediction Details</h4>
+      <table class="sites-table">
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let entry of getObjectEntries(riskPrediction)"><td>{{ entry[0] }}</td><td>{{ entry[1] }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Explanations Tab -->
+  <div *ngIf="activeTab === 'explain'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="explainCost()" [disabled]="!selectedSiteId || loading">
+        <i class="fas fa-dollar-sign"></i> Explain Cost
+      </button>
+      <button class="btn btn-primary" (click)="explainRisk()" [disabled]="!selectedSiteId || loading">
+        <i class="fas fa-shield-alt"></i> Explain Risk
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <div *ngIf="costExplanation" class="explanation-card">
+      <h4><i class="fas fa-dollar-sign"></i> Cost Explanation</h4>
+      <p *ngIf="costExplanation.predictedValue != null"><strong>Predicted:</strong> ${{ costExplanation.predictedValue | number:'1.2-2' }}</p>
+      <p *ngIf="costExplanation.baseValue != null"><strong>Base Value:</strong> ${{ costExplanation.baseValue | number:'1.2-2' }}</p>
+      <table *ngIf="costExplanation.predictedValue == null" class="sites-table">
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let entry of getObjectEntries(costExplanation)"><td>{{ entry[0] }}</td><td>{{ entry[1] }}</td></tr>
+        </tbody>
+      </table>
+      <table *ngIf="getShapEntries(costExplanation.shapValues).length > 0" class="sites-table">
+        <thead><tr><th>Feature</th><th>SHAP Value</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let entry of getShapEntries(costExplanation.shapValues)">
+            <td>{{ entry[0] }}</td>
+            <td [style.color]="entry[1] >= 0 ? '#dc2626' : '#16a34a'">{{ entry[1] | number:'1.4-4' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="riskExplanation" class="explanation-card">
+      <h4><i class="fas fa-shield-alt"></i> Risk Explanation</h4>
+      <p *ngIf="riskExplanation.predictedValue != null"><strong>Predicted:</strong> {{ riskExplanation.predictedValue | number:'1.2-2' }}</p>
+      <table *ngIf="riskExplanation.predictedValue == null" class="sites-table">
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let entry of getObjectEntries(riskExplanation)"><td>{{ entry[0] }}</td><td>{{ entry[1] }}</td></tr>
+        </tbody>
+      </table>
+      <table *ngIf="getShapEntries(riskExplanation.shapValues).length > 0" class="sites-table">
+        <thead><tr><th>Feature</th><th>SHAP Value</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let entry of getShapEntries(riskExplanation.shapValues)">
+            <td>{{ entry[0] }}</td>
+            <td [style.color]="entry[1] >= 0 ? '#dc2626' : '#16a34a'">{{ entry[1] | number:'1.4-4' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Features Tab -->
+  <div *ngIf="activeTab === 'features'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="loadFeatures()">
+        <i class="fas fa-database"></i> Load Features
+      </button>
+      <button class="btn btn-secondary" (click)="computeFeatures()">
+        <i class="fas fa-calculator"></i> Compute
+      </button>
+      <button class="btn btn-secondary" (click)="backfillTargets()">
+        <i class="fas fa-bullseye"></i> Backfill Targets
+      </button>
+      <button class="btn btn-secondary" (click)="enrichMarketPrices()">
+        <i class="fas fa-chart-line"></i> Enrich Prices
+      </button>
+    </div>
+
+    <div class="filter-row">
+      <label>Import CSV:</label>
+      <input type="file" (change)="onFileSelected($event)" accept=".csv">
+      <button class="btn btn-secondary" (click)="importFeaturesCsv()" [disabled]="!selectedFile">
+        <i class="fas fa-upload"></i> Import
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && features.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>Site</th><th>Year</th><th>Month</th><th>Incidents</th><th>Critical</th>
+          <th>Maint. Cost</th><th>Incident Cost</th><th>Oil Price</th><th>Target Cost</th><th>Target Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let f of features">
+          <td>{{ f.siteId }}</td>
+          <td>{{ f.year }}</td>
+          <td>{{ f.month }}</td>
+          <td>{{ f.incidentCount }}</td>
+          <td>{{ f.criticalIncidentCount }}</td>
+          <td>{{ f.maintenanceCost | number:'1.2-2' }}</td>
+          <td>{{ f.incidentCost | number:'1.2-2' }}</td>
+          <td>{{ f.oilPrice | number:'1.2-2' }}</td>
+          <td>{{ f.targetCost | number:'1.2-2' }}</td>
+          <td>{{ f.targetRisk }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Health Tab -->
+  <div *ngIf="activeTab === 'health'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="loadHealth()">
+        <i class="fas fa-sync"></i> Refresh Health
+      </button>
+    </div>
+
+    <div *ngIf="healthData" class="health-detail">
+      <div class="kpi-cards">
+        <div class="kpi-card">
+          <div class="kpi-label">Status</div>
+          <div class="kpi-value" [style.color]="healthData.status === 'OK' ? '#16a34a' : '#dc2626'">{{ healthData.status }}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Training Data Size</div>
+          <div class="kpi-value">{{ healthData.trainingDataSize }}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Last Training</div>
+          <div class="kpi-value" style="font-size:1rem;">{{ healthData.lastTrainingDate || 'Never' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

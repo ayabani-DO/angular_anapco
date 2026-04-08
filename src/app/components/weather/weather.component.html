@@ -39,10 +39,12 @@
       <div class="overview-card">
         <h4><i class="fas fa-thermometer-half"></i> Latest Weather</h4>
         <div *ngIf="overview.latestWeatherData; else noWeather">
-          <p><strong>Temp:</strong> {{ overview.latestWeatherData.temperature }}°C</p>
-          <p><strong>Humidity:</strong> {{ overview.latestWeatherData.humidity }}%</p>
-          <p><strong>Wind:</strong> {{ overview.latestWeatherData.windSpeed }} km/h</p>
-          <p><strong>Precipitation:</strong> {{ overview.latestWeatherData.precipitation }} mm</p>
+          <p><strong>Temp:</strong> {{ overview.latestWeatherData.temperature != null ? overview.latestWeatherData.temperature + '°C' : 'N/A' }}</p>
+          <p><strong>Humidity:</strong> {{ overview.latestWeatherData.humidity != null ? overview.latestWeatherData.humidity + '%' : 'N/A' }}</p>
+          <p><strong>Wind:</strong> {{ overview.latestWeatherData.windSpeed != null ? overview.latestWeatherData.windSpeed + ' km/h' : 'N/A' }}</p>
+          <p><strong>Precipitation:</strong> {{ overview.latestWeatherData.precipitation != null ? overview.latestWeatherData.precipitation + ' mm' : 'N/A' }}</p>
+          <p *ngIf="overview.latestWeatherData.date"><strong>Date:</strong> {{ overview.latestWeatherData.date }}</p>
+          <p *ngIf="overview.latestWeatherData.source"><strong>Source:</strong> {{ overview.latestWeatherData.source }}</p>
         </div>
         <ng-template #noWeather><p class="muted">No weather data available</p></ng-template>
       </div>
@@ -68,7 +70,7 @@
       <div class="overview-card">
         <h4><i class="fas fa-lightbulb"></i> Recommendations ({{ overview.recommendations.length || 0 }})</h4>
         <div *ngFor="let rec of overview.recommendations | slice:0:3">
-          <p><strong>{{ rec.priority }}:</strong> {{ rec.message }}</p>
+          <p><strong>{{ rec.priority }}:</strong> {{ rec.message || '(no details)' }}</p>
         </div>
         <p *ngIf="!overview.recommendations?.length" class="muted">No recommendations</p>
       </div>

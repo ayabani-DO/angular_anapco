@@ -15,6 +15,8 @@ import { SharedModule } from './shared/shared.module';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 import { ToastComponent } from './components/toast/toast.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,9 @@ import { ToastComponent } from './components/toast/toast.component';
     RegisterComponent,
     ActivateAccountComponent,
     UpdatePasswordComponent,
-    ToastComponent
+    ToastComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
   ],
   imports: [
     BrowserModule,

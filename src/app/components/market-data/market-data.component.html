@@ -1,0 +1,127 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-chart-area"></i> Market Data</h2>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'oil'" (click)="activeTab = 'oil'">Oil Prices</button>
+    <button class="tab-btn" [class.active]="activeTab === 'energy'" (click)="activeTab = 'energy'">Energy Prices</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+  <!-- Oil Tab -->
+  <div *ngIf="activeTab === 'oil'" class="tab-content">
+    <div class="filter-row">
+      <button class="btn btn-primary" (click)="loadOilLatest()">
+        <i class="fas fa-bolt"></i> Latest Price
+      </button>
+      <button class="btn btn-secondary" (click)="syncOilLatest()">
+        <i class="fas fa-sync"></i> Sync Latest
+      </button>
+    </div>
+
+    <div *ngIf="latestOil" class="kpi-cards">
+      <div class="kpi-card">
+        <div class="kpi-label">Latest Oil Price</div>
+        <div class="kpi-value">${{ latestOil.price | number:'1.2-2' }}</div>
+        <div class="kpi-sub">{{ latestOil.date }}</div>
+      </div>
+    </div>
+
+    <div class="filter-row" style="margin-top: 20px;">
+      <label>From:</label>
+      <input type="date" [(ngModel)]="oilStart">
+      <label>To:</label>
+      <input type="date" [(ngModel)]="oilEnd">
+      <button class="btn btn-primary" (click)="loadOilRange()">
+        <i class="fas fa-search"></i> Load
+      </button>
+      <button class="btn btn-secondary" (click)="syncOilRange()">
+        <i class="fas fa-sync"></i> Sync Range
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && oilPrices.length > 0" class="sites-table">
+      <thead>
+        <tr><th>Date</th><th>Price (USD)</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of oilPrices">
+          <td>{{ p.date }}</td>
+          <td><strong>{{ p.price | number:'1.2-2' }}</strong></td>
+          <td>{{ p.source }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="filter-row" style="margin-top: 20px;">
+      <label>Import CSV:</label>
+      <input type="file" (change)="onFileSelected($event)" accept=".csv">
+      <button class="btn btn-secondary" (click)="importOilCsv()" [disabled]="!selectedFile">
+        <i class="fas fa-upload"></i> Import Oil CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Energy Tab -->
+  <div *ngIf="activeTab === 'energy'" class="tab-content">
+    <div class="filter-row">
+      <label>Country:</label>
+      <input type="text" [(ngModel)]="countryCode" placeholder="US" style="width:80px;">
+      <button class="btn btn-primary" (click)="loadEnergyLatest()">
+        <i class="fas fa-bolt"></i> Latest Price
+      </button>
+      <button class="btn btn-secondary" (click)="syncEnergyLatest()">
+        <i class="fas fa-sync"></i> Sync Latest
+      </button>
+    </div>
+
+    <div *ngIf="latestEnergy" class="kpi-cards">
+      <div class="kpi-card">
+        <div class="kpi-label">Latest Energy Price ({{ countryCode }})</div>
+        <div class="kpi-value">${{ latestEnergy.price | number:'1.2-2' }}</div>
+        <div class="kpi-sub">{{ latestEnergy.date }}</div>
+      </div>
+    </div>
+
+    <div class="filter-row" style="margin-top: 20px;">
+      <label>From:</label>
+      <input type="date" [(ngModel)]="energyStart">
+      <label>To:</label>
+      <input type="date" [(ngModel)]="energyEnd">
+      <button class="btn btn-primary" (click)="loadEnergyRange()">
+        <i class="fas fa-search"></i> Load
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <table *ngIf="!loading && energyPrices.length > 0" class="sites-table">
+      <thead>
+        <tr><th>Date</th><th>Country</th><th>Price</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of energyPrices">
+          <td>{{ p.date }}</td>
+          <td>{{ p.countryCode }}</td>
+          <td><strong>{{ p.price | number:'1.2-2' }}</strong></td>
+          <td>{{ p.source }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="filter-row" style="margin-top: 20px;">
+      <label>Import CSV:</label>
+      <input type="file" (change)="onFileSelected($event)" accept=".csv">
+      <button class="btn btn-secondary" (click)="importEnergyCsv()" [disabled]="!selectedFile">
+        <i class="fas fa-upload"></i> Import Energy CSV
+      </button>
+    </div>
+  </div>
+</div>

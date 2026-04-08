@@ -36,4 +36,8 @@ export class SiteService {
   getIncidentsBySite(siteId: number): Observable<Incident[]> {
     return this.http.get<Incident[]>(`${this.baseUrl}/getIncidentsBySite/${siteId}/incidents`);
   }
+
+  affectIncidentToSite(siteId: number, incidentId: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/affectIncidentToSite/${siteId}/incident/${incidentId}`, {});
+  }
 }

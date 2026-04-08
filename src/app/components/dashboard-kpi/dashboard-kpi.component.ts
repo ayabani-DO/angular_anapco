@@ -37,6 +37,11 @@ export class DashboardKpiComponent implements OnInit {
     });
   }
 
+  getMapEntries(obj: { [key: string]: number } | undefined): [string, number][] {
+    if (!obj) return [];
+    return Object.entries(obj);
+  }
+
   loadDashboard(): void {
     if (!this.selectedSiteId) return;
 

@@ -1,1 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); color: #333; min-height: 100vh; }
+
+.site-list-container,
+.site-form-container,
+.site-detail-container,
+.dashboard-container,
+.kpi-container {
+  margin-left: 280px !important;
+  padding: 30px;
+}

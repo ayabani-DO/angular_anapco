@@ -42,41 +42,253 @@
     <i class="fas fa-spinner fa-spin"></i> Loading KPI data...
   </div>
 
+  <!-- Overall Health Banner -->
+  <div *ngIf="dashboardData && !loading" class="health-banner" [ngClass]="{
+    'health-good': dashboardData.overallHealthStatus === 'GOOD' || dashboardData.overallHealthStatus === 'HEALTHY',
+    'health-warning': dashboardData.overallHealthStatus === 'WARNING' || dashboardData.overallHealthStatus === 'MODERATE',
+    'health-critical': dashboardData.overallHealthStatus === 'CRITICAL' || dashboardData.overallHealthStatus === 'POOR'
+  }">
+    <div class="health-status">
+      <i class="fas" [ngClass]="{
+        'fa-check-circle': dashboardData.overallHealthStatus === 'GOOD' || dashboardData.overallHealthStatus === 'HEALTHY',
+        'fa-exclamation-triangle': dashboardData.overallHealthStatus === 'WARNING' || dashboardData.overallHealthStatus === 'MODERATE',
+        'fa-times-circle': dashboardData.overallHealthStatus === 'CRITICAL' || dashboardData.overallHealthStatus === 'POOR'
+      }"></i>
+      <span>Overall Health: <strong>{{ dashboardData.overallHealthStatus || 'N/A' }}</strong></span>
+    </div>
+    <div *ngIf="dashboardData.primaryRiskFactor" class="health-detail">
+      <i class="fas fa-flag"></i> Primary Risk: {{ dashboardData.primaryRiskFactor }}
+    </div>
+    <div *ngIf="dashboardData.topRecommendation" class="health-detail">
+      <i class="fas fa-lightbulb"></i> {{ dashboardData.topRecommendation }}
+    </div>
+  </div>
+
   <!-- Risk Score -->
-  <div *ngIf="riskScore" class="kpi-cards">
-    <div class="kpi-card">
-      <div class="kpi-label">Risk Score</div>
-      <div class="kpi-value" [ngClass]="{
-        'positive': riskScore.riskScore != null && riskScore.riskScore < 30,
-        'warning': riskScore.riskScore != null && riskScore.riskScore >= 30 && riskScore.riskScore < 70,
-        'negative': riskScore.riskScore != null && riskScore.riskScore >= 70
+  <div *ngIf="riskScore && !loading" class="section-card risk-section">
+    <h3><i class="fas fa-shield-alt"></i> Risk Assessment</h3>
+    <div class="risk-grid">
+      <div class="risk-score-circle" [ngClass]="{
+        'risk-low': riskScore.riskScore != null && riskScore.riskScore < 30,
+        'risk-medium': riskScore.riskScore != null && riskScore.riskScore >= 30 && riskScore.riskScore < 70,
+        'risk-high': riskScore.riskScore != null && riskScore.riskScore >= 70
       }">
-        {{ riskScore.riskScore | number:'1.1-1' }}
+        <div class="score-number">{{ riskScore.riskScore | number:'1.0-0' }}</div>
+        <div class="score-label">{{ riskScore.riskLevel || riskScore.riskCategory }}</div>
+      </div>
+      <div class="risk-details">
+        <div class="risk-meta">
+          <p *ngIf="riskScore.targetName"><strong>Target:</strong> {{ riskScore.targetName }}</p>
+          <p *ngIf="riskScore.urgencyLevel"><strong>Urgency:</strong> <span class="badge" [ngClass]="{
+            'badge-success': riskScore.urgencyLevel === 'LOW',
+            'badge-warning': riskScore.urgencyLevel === 'MEDIUM',
+            'badge-danger': riskScore.urgencyLevel === 'HIGH' || riskScore.urgencyLevel === 'CRITICAL'
+          }">{{ riskScore.urgencyLevel }}</span></p>
+          <p *ngIf="riskScore.confidenceScore"><strong>Confidence:</strong> {{ riskScore.confidenceScore | number:'1.0-0' }}%</p>
+          <p *ngIf="riskScore.incidentsLast30Days != null"><strong>Incidents (30d):</strong> {{ riskScore.incidentsLast30Days }}</p>
+          <p *ngIf="riskScore.recommendation"><strong>Recommendation:</strong> {{ riskScore.recommendation }}</p>
+        </div>
+        <div *ngIf="riskScore.riskFactors?.length" class="risk-factors">
+          <strong>Risk Factors:</strong>
+          <ul>
+            <li *ngFor="let f of riskScore.riskFactors">{{ f }}</li>
+          </ul>
+        </div>
+        <div *ngIf="riskScore.suggestedActions?.length" class="risk-factors">
+          <strong>Suggested Actions:</strong>
+          <ul>
+            <li *ngFor="let a of riskScore.suggestedActions">{{ a }}</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Dashboard Data -->
   <div *ngIf="dashboardData && !loading" class="dashboard-section">
-    <div class="section-card">
+
+    <!-- Severity Distribution -->
+    <div class="section-card" *ngIf="dashboardData.severityKpi">
       <h3><i class="fas fa-exclamation-circle"></i> Severity Distribution</h3>
-      <pre class="json-display">{{ dashboardData.severityKpi | json }}</pre>
+      <div class="severity-grid">
+        <div class="severity-item severity-low">
+          <div class="severity-count">{{ dashboardData.severityKpi.lowCount || 0 }}</div>
+          <div class="severity-label">Low</div>
+          <div class="severity-pct">{{ dashboardData.severityKpi.lowPercentage | number:'1.0-0' }}%</div>
+        </div>
+        <div class="severity-item severity-medium">
+          <div class="severity-count">{{ dashboardData.severityKpi.mediumCount || 0 }}</div>
+          <div class="severity-label">Medium</div>
+          <div class="severity-pct">{{ dashboardData.severityKpi.mediumPercentage | number:'1.0-0' }}%</div>
+        </div>
+        <div class="severity-item severity-high">
+          <div class="severity-count">{{ dashboardData.severityKpi.highCount || 0 }}</div>
+          <div class="severity-label">High</div>
+          <div class="severity-pct">{{ dashboardData.severityKpi.highPercentage | number:'1.0-0' }}%</div>
+        </div>
+        <div class="severity-item severity-critical">
+          <div class="severity-count">{{ dashboardData.severityKpi.criticalCount || 0 }}</div>
+          <div class="severity-label">Critical</div>
+          <div class="severity-pct">{{ dashboardData.severityKpi.criticalPercentage | number:'1.0-0' }}%</div>
+        </div>
+      </div>
+      <div class="severity-summary">
+        <div class="summary-row">
+          <span>Total Incidents</span>
+          <strong>{{ dashboardData.severityKpi.totalCount || 0 }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Severity Index</span>
+          <strong>{{ dashboardData.severityKpi.severityIndex | number:'1.2-2' }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Critical Ratio</span>
+          <strong>{{ dashboardData.severityKpi.criticalRatio | number:'1.1-1' }}%</strong>
+        </div>
+        <div class="summary-row" *ngIf="dashboardData.severityKpi.riskLevel">
+          <span>Risk Level</span>
+          <span class="badge" [ngClass]="{
+            'badge-success': dashboardData.severityKpi.riskLevel === 'LOW',
+            'badge-warning': dashboardData.severityKpi.riskLevel === 'MEDIUM',
+            'badge-danger': dashboardData.severityKpi.riskLevel === 'HIGH' || dashboardData.severityKpi.riskLevel === 'CRITICAL'
+          }">{{ dashboardData.severityKpi.riskLevel }}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="section-card">
+    <!-- Lifecycle -->
+    <div class="section-card" *ngIf="dashboardData.lifecycleKpi">
       <h3><i class="fas fa-sync-alt"></i> Lifecycle</h3>
-      <pre class="json-display">{{ dashboardData.lifecycleKpi | json }}</pre>
+      <div class="lifecycle-grid">
+        <div class="lifecycle-item lc-open">
+          <div class="lc-count">{{ dashboardData.lifecycleKpi.openCount || 0 }}</div>
+          <div class="lc-label">Open</div>
+        </div>
+        <div class="lifecycle-item lc-progress">
+          <div class="lc-count">{{ dashboardData.lifecycleKpi.inProgressCount || 0 }}</div>
+          <div class="lc-label">In Progress</div>
+        </div>
+        <div class="lifecycle-item lc-closed">
+          <div class="lc-count">{{ dashboardData.lifecycleKpi.closedCount || 0 }}</div>
+          <div class="lc-label">Closed</div>
+        </div>
+      </div>
+      <div class="severity-summary">
+        <div class="summary-row">
+          <span>Total</span>
+          <strong>{{ dashboardData.lifecycleKpi.totalCount || 0 }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Closure Rate</span>
+          <strong class="positive">{{ dashboardData.lifecycleKpi.closureRate | number:'1.1-1' }}%</strong>
+        </div>
+        <div class="summary-row">
+          <span>Avg Resolution</span>
+          <strong>{{ dashboardData.lifecycleKpi.avgResolutionDays | number:'1.1-1' }} days</strong>
+        </div>
+        <div class="summary-row" *ngIf="dashboardData.lifecycleKpi.avgResolutionHours">
+          <span>Avg Resolution (h)</span>
+          <strong>{{ dashboardData.lifecycleKpi.avgResolutionHours | number:'1.0-0' }}h</strong>
+        </div>
+        <div class="summary-row" *ngIf="dashboardData.lifecycleKpi.longestResolutionDays">
+          <span>Longest Resolution</span>
+          <strong class="negative">{{ dashboardData.lifecycleKpi.longestResolutionDays | number:'1.1-1' }}d</strong>
+        </div>
+        <div class="summary-row" *ngIf="dashboardData.lifecycleKpi.performanceLevel">
+          <span>Performance</span>
+          <span class="badge" [ngClass]="{
+            'badge-success': dashboardData.lifecycleKpi.performanceLevel === 'EXCELLENT' || dashboardData.lifecycleKpi.performanceLevel === 'GOOD',
+            'badge-warning': dashboardData.lifecycleKpi.performanceLevel === 'AVERAGE',
+            'badge-danger': dashboardData.lifecycleKpi.performanceLevel === 'POOR'
+          }">{{ dashboardData.lifecycleKpi.performanceLevel }}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="section-card">
+    <!-- Cost Analysis -->
+    <div class="section-card" *ngIf="dashboardData.costKpi">
       <h3><i class="fas fa-dollar-sign"></i> Cost Analysis</h3>
-      <pre class="json-display">{{ dashboardData.costKpi | json }}</pre>
+      <div class="cost-summary">
+        <div class="cost-row">
+          <span>Estimated Cost</span>
+          <strong>{{ dashboardData.costKpi.totalEstimatedCost | number:'1.2-2' }} {{ dashboardData.costKpi.targetCurrency || 'USD' }}</strong>
+        </div>
+        <div class="cost-row">
+          <span>Real Cost</span>
+          <strong>{{ dashboardData.costKpi.totalRealCost | number:'1.2-2' }} {{ dashboardData.costKpi.targetCurrency || 'USD' }}</strong>
+        </div>
+        <div class="cost-row">
+          <span>Variance</span>
+          <strong [ngClass]="(dashboardData.costKpi.totalCostVariance ?? 0) >= 0 ? 'positive' : 'negative'">
+            {{ dashboardData.costKpi.totalCostVariance | number:'1.2-2' }}
+            <span *ngIf="dashboardData.costKpi.totalCostVariancePercent">
+              ({{ dashboardData.costKpi.totalCostVariancePercent | number:'1.1-1' }}%)
+            </span>
+          </strong>
+        </div>
+        <div class="cost-row">
+          <span>Avg / Incident</span>
+          <strong>{{ dashboardData.costKpi.avgCostPerIncident | number:'1.2-2' }}</strong>
+        </div>
+        <div class="cost-row" *ngIf="dashboardData.costKpi.costOverrunRatio != null">
+          <span>Overrun Ratio</span>
+          <strong [ngClass]="(dashboardData.costKpi.costOverrunRatio || 0) > 1 ? 'negative' : 'positive'">{{ dashboardData.costKpi.costOverrunRatio | number:'1.2-2' }}</strong>
+        </div>
+        <div class="cost-row" *ngIf="dashboardData.costKpi.costPerformanceLevel">
+          <span>Performance</span>
+          <span class="badge" [ngClass]="{
+            'badge-success': dashboardData.costKpi.costPerformanceLevel === 'EXCELLENT' || dashboardData.costKpi.costPerformanceLevel === 'GOOD',
+            'badge-warning': dashboardData.costKpi.costPerformanceLevel === 'AVERAGE',
+            'badge-danger': dashboardData.costKpi.costPerformanceLevel === 'POOR'
+          }">{{ dashboardData.costKpi.costPerformanceLevel }}</span>
+        </div>
+      </div>
+      <div *ngIf="dashboardData.costKpi.costBySeverity" class="cost-breakdown">
+        <h4>Cost by Severity</h4>
+        <div class="breakdown-bar">
+          <div *ngFor="let entry of getMapEntries(dashboardData.costKpi.costBySeverity)" class="breakdown-item">
+            <span class="breakdown-label">{{ entry[0] }}</span>
+            <span class="breakdown-value">{{ entry[1] | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Trend Data -->
-  <div *ngIf="trendData && !loading" class="section-card full-width">
+  <div *ngIf="trendData && !loading" class="section-card full-width trend-section">
     <h3><i class="fas fa-chart-line"></i> Trend ({{ trendMonths }} months)</h3>
-    <pre class="json-display">{{ trendData | json }}</pre>
+    <div class="trend-grid">
+      <div class="trend-card">
+        <div class="trend-icon" [ngClass]="{
+          'trend-up': trendData.trendDirection === 'UP' || trendData.trendDirection === 'INCREASING',
+          'trend-down': trendData.trendDirection === 'DOWN' || trendData.trendDirection === 'DECREASING',
+          'trend-stable': trendData.trendDirection === 'STABLE'
+        }">
+          <i class="fas" [ngClass]="{
+            'fa-arrow-up': trendData.trendDirection === 'UP' || trendData.trendDirection === 'INCREASING',
+            'fa-arrow-down': trendData.trendDirection === 'DOWN' || trendData.trendDirection === 'DECREASING',
+            'fa-minus': trendData.trendDirection === 'STABLE'
+          }"></i>
+        </div>
+        <div class="trend-info">
+          <div class="trend-direction">{{ trendData.trendDirection }}</div>
+          <div class="trend-pct" *ngIf="trendData.trendPercentage != null">{{ trendData.trendPercentage | number:'1.1-1' }}%</div>
+        </div>
+      </div>
+      <div class="trend-stats">
+        <div class="summary-row">
+          <span>Total Incidents</span>
+          <strong>{{ trendData.totalIncidentsInPeriod || 0 }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Avg / Month</span>
+          <strong>{{ trendData.avgIncidentsPerMonth | number:'1.1-1' }}</strong>
+        </div>
+      </div>
+    </div>
+    <p *ngIf="trendData.trendInterpretation" class="trend-interpretation">
+      <i class="fas fa-info-circle"></i> {{ trendData.trendInterpretation }}
+    </p>
   </div>
 </div>

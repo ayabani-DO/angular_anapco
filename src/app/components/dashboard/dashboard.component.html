@@ -1,1 +1,121 @@
 <app-sidebar></app-sidebar>
+
+<div class="dashboard-container">
+  <div class="header">
+    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+    <span class="header-subtitle">ANAPCO Operations Overview</span>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading dashboard data...
+  </div>
+
+  <!-- KPI Summary Cards -->
+  <div *ngIf="!loading" class="kpi-row">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon"><i class="fas fa-industry"></i></div>
+      <div class="kpi-info">
+        <div class="kpi-value">{{ totalSites }}</div>
+        <div class="kpi-label">Total Sites</div>
+        <div class="kpi-sub">{{ activeSites }} active</div>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-green">
+      <div class="kpi-icon"><i class="fas fa-cogs"></i></div>
+      <div class="kpi-info">
+        <div class="kpi-value">{{ totalEquipements }}</div>
+        <div class="kpi-label">Equipment</div>
+        <div class="kpi-sub">{{ activeEquipements }} active</div>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-orange">
+      <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="kpi-info">
+        <div class="kpi-value">{{ totalIncidents }}</div>
+        <div class="kpi-label">Incidents</div>
+        <div class="kpi-sub">{{ openIncidents }} open</div>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-red">
+      <div class="kpi-icon"><i class="fas fa-heartbeat"></i></div>
+      <div class="kpi-info">
+        <div class="kpi-value">{{ highRiskCount }}</div>
+        <div class="kpi-label">High Risk Equipment</div>
+        <div class="kpi-sub">Needs attention</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Grid -->
+  <div *ngIf="!loading" class="content-grid">
+    <!-- Sites Overview -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3><i class="fas fa-map-marker-alt"></i> Sites Overview</h3>
+        <a routerLink="/sites" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div *ngIf="sites.length === 0" class="empty-state-small">No sites found</div>
+      <table *ngIf="sites.length > 0" class="mini-table">
+        <thead>
+          <tr><th>Name</th><th>Country</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let site of sites | slice:0:5">
+            <td><a [routerLink]="['/sites', site.idSite]" class="link">{{ site.nom }}</a></td>
+            <td>{{ site.countryCode }}</td>
+            <td><span class="badge" [ngClass]="getStatusClass(site.statusSites)">{{ site.statusSites }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent Incidents -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3><i class="fas fa-exclamation-circle"></i> Recent Incidents</h3>
+        <a routerLink="/incidents" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div *ngIf="recentIncidents.length === 0" class="empty-state-small">No incidents found</div>
+      <table *ngIf="recentIncidents.length > 0" class="mini-table">
+        <thead>
+          <tr><th>Description</th><th>Severity</th><th>State</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inc of recentIncidents | slice:0:5">
+            <td>{{ inc.description | slice:0:40 }}{{ inc.description.length > 40 ? '...' : '' }}</td>
+            <td><span class="badge" [ngClass]="getSeverityClass(inc.severityCode)">{{ inc.severityCode }}</span></td>
+            <td>{{ inc.etatIncident }}</td>
+            <td>{{ inc.date }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- High Risk Equipment -->
+    <div class="section-card full-width">
+      <div class="section-header">
+        <h3><i class="fas fa-heartbeat"></i> High Risk Equipment (RUL)</h3>
+        <a routerLink="/equipment-rul" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div *ngIf="highRiskEquipment.length === 0" class="empty-state-small">No high-risk equipment</div>
+      <table *ngIf="highRiskEquipment.length > 0" class="mini-table">
+        <thead>
+          <tr><th>Equipment</th><th>Ref</th><th>RUL Score</th><th>Category</th><th>Est. Days Left</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of highRiskEquipment | slice:0:5">
+            <td>{{ item.equipmentName }}</td>
+            <td>{{ item.equipmentRef }}</td>
+            <td>{{ item.rulScore }}</td>
+            <td><span class="badge" [ngClass]="getRulClass(item.rulCategory)">{{ item.rulCategory }}</span></td>
+            <td>{{ item.estimatedRemainingDays }}</td>
+            <td>{{ item.recommendedAction }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

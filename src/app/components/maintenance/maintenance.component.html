@@ -1,0 +1,72 @@
+<app-sidebar></app-sidebar>
+
+<div class="site-list-container">
+  <div class="header">
+    <h2><i class="fas fa-wrench"></i> Maintenance</h2>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Equipment</label>
+        <select [(ngModel)]="selectedEquipementId">
+          <option [ngValue]="null">-- All Equipment --</option>
+          <option *ngFor="let eq of equipements" [ngValue]="eq.idEquipement">{{ eq.nomEquipement }} ({{ eq.refEquipement }})</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Type</label>
+        <select [(ngModel)]="typeFilter" (ngModelChange)="applyFilters()">
+          <option value="">All Types</option>
+          <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Status</label>
+        <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+          <option value="">All Statuses</option>
+          <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" (click)="selectedEquipementId ? loadByEquipement() : loadAll()">
+        <i class="fas fa-search"></i> Search
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading maintenance records...
+  </div>
+
+  <div *ngIf="!loading && filteredList.length === 0" class="empty-state">
+    <i class="fas fa-wrench"></i>
+    <p>No maintenance records found.</p>
+  </div>
+
+  <table *ngIf="!loading && filteredList.length > 0" class="sites-table">
+    <thead>
+      <tr>
+        <th>Ref Code</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Equipment</th>
+        <th>Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of filteredList">
+        <td><strong>{{ m.refCode }}</strong></td>
+        <td><span class="badge" [ngClass]="getTypeBadgeClass(m.typeMaintenance)">{{ m.typeMaintenance }}</span></td>
+        <td><span class="badge" [ngClass]="getStatusBadgeClass(m.statusMaintenance)">{{ m.statusMaintenance }}</span></td>
+        <td>{{ m.date }}</td>
+        <td>{{ m.description }}</td>
+        <td>{{ m.equipement?.nomEquipement || '-' }}</td>
+        <td>{{ m.costReal != null ? (m.costReal | number:'1.2-2') : '-' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
