@@ -111,6 +111,12 @@ const routes: Routes = [
     loadChildren: () => import('./components/market-data/market-data.module').then(m => m.MarketDataModule),
     canActivate: [AuthGuard]
   },
+
+  {
+    path: 'assistant',
+    loadChildren: () => import('./components/assistant/assistant.module').then(m => m.AssistantModule),
+    canActivate: [AuthGuard]
+  },
   {
     path: 'ml',
     loadChildren: () => import('./components/ml/ml.module').then(m => m.MlModule),
